@@ -1,16 +1,11 @@
-# todoapp
+A simple todo app that allows users to create new tasks. Tasks can be marked as complete and moved to a separate completed list. Created tasks are saved locally so the lists are accessible offline. The main functionality focuses on reliably managing pending and completed tasks in a minimalist interface without complex features.
 
-A new Flutter project.
+Key points:
 
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Add new tasks
+Mark tasks as complete
+Delete tasks
+Separate pending and completed task lists
+Offline access
+Simple and minimalist interface
+Reliable task management
