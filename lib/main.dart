@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runApp(const ToDoApp());
@@ -28,13 +29,43 @@ class ToDoList extends StatefulWidget {
 }
 
 class _ToDoListState extends State<ToDoList> {
-  final List<ToDo> _todos = <ToDo>[];
+  late List<ToDo> _todos = <ToDo>[];
   final TextEditingController _textFieldController = TextEditingController();
+  late SharedPreferences _prefs;
+
+  void initState() {
+    super.initState();
+    _loadPrefs();
+  }
+
+  void _loadPrefs() async {
+    _prefs = await SharedPreferences.getInstance();
+    final List<String>? todos = _prefs.getStringList('todos');
+    final List<String>? todosState = _prefs.getStringList('todosState');
+    final List<bool> todosCompleted =
+        todosState?.map((state) => state == 'true').toList() ?? [];
+    for (var e = 0; e < todos!.length; e++) {
+      _todos.add(ToDo(name: todos[e], completed: todosCompleted[e]));
+    }
+    setState(() {});
+  }
+
+  void _saveTodos() {
+    _prefs.setStringList('todos', _todos.map((todo) => todo.name).toList());
+    setState(() {});
+  }
+
+  void _saveTodosState() {
+    _prefs.setStringList(
+        'todosState', _todos.map((todo) => todo.completed.toString()).toList());
+    setState(() {});
+  }
 
   void _addTodoItem(String name) {
     setState(() {
       _todos.add(ToDo(name: name, completed: false));
     });
+    _saveTodos();
     _textFieldController.clear();
   }
 
@@ -42,6 +73,15 @@ class _ToDoListState extends State<ToDoList> {
     setState(() {
       todo.completed = !todo.completed;
     });
+    _saveTodosState();
+  }
+
+  void _deleteTodo(ToDo todo) {
+    setState(() {
+      _todos.removeWhere((element) => element.name == todo.name);
+    });
+    _saveTodos();
+    _saveTodosState();
   }
 
   @override
@@ -98,7 +138,7 @@ class _ToDoListState extends State<ToDoList> {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              onPressed: () {
+              onPressed: () async {
                 Navigator.of(context).pop();
                 _addTodoItem(_textFieldController.text);
               },
@@ -108,12 +148,6 @@ class _ToDoListState extends State<ToDoList> {
         );
       },
     );
-  }
-
-  void _deleteTodo(ToDo todo) {
-    setState(() {
-      _todos.removeWhere((element) => element.name == todo.name);
-    });
   }
 }
 
@@ -135,11 +169,11 @@ class TodoItem extends StatelessWidget {
   final void Function(ToDo todo) onTodoChanged;
 
   TextStyle? _getTextStyle(bool checked) {
-    if (!checked) return TextStyle(color: Colors.black54, fontSize: 25);
+    if (!checked) return TextStyle(color: Colors.black54, fontSize: 20);
 
     return const TextStyle(
       color: Colors.black54,
-      fontSize: 25,
+      fontSize: 20,
       decoration: TextDecoration.lineThrough,
     );
   }
@@ -161,7 +195,7 @@ class TodoItem extends StatelessWidget {
           child: Text(todo.name, style: _getTextStyle(todo.completed)),
         ),
         IconButton(
-          iconSize: 30,
+          iconSize: 25,
           icon: Icon(
             Icons.delete,
             color: Colors.red[300],
